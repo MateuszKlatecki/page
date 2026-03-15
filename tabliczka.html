@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tabliczka Mnożenia 🌟</title>
+  <style>
+    /* ── Reset & base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+      padding: 1rem;
+    }
+
+    /* ── Card container ── */
+    .card {
+      background: #fff;
+      border-radius: 2rem;
+      padding: 2.5rem 3rem;
+      text-align: center;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+      max-width: 480px;
+      width: 100%;
+    }
+
+    /* ── Typography ── */
+    h1 { font-size: 2.4rem; color: #ff6b9d; margin-bottom: .5rem; }
+    h2 { font-size: 1.6rem; color: #6c5ce7; margin-bottom: 1.2rem; }
+    p  { font-size: 1.1rem; color: #636e72; margin-bottom: 1rem; }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-block;
+      padding: .75rem 2.5rem;
+      font-size: 1.3rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 3rem;
+      cursor: pointer;
+      transition: transform .1s, box-shadow .1s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+    }
+    .btn:active { transform: scale(.96); box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+
+    .btn-primary  { background: linear-gradient(90deg, #f9ca24, #f0932b); color: #fff; }
+    .btn-success  { background: linear-gradient(90deg, #6ab04c, #badc58); color: #fff; }
+    .btn-check    { background: linear-gradient(90deg, #6c5ce7, #a29bfe); color: #fff; }
+
+    /* ── Progress bar ── */
+    .progress-wrap {
+      background: #dfe6e9;
+      border-radius: 1rem;
+      height: .75rem;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #fdcb6e, #e17055);
+      border-radius: 1rem;
+      transition: width .3s ease;
+    }
+    .progress-label {
+      font-size: .95rem;
+      color: #636e72;
+      margin-bottom: .4rem;
+    }
+
+    /* ── Task display ── */
+    .task {
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: #2d3436;
+      margin: 1rem 0;
+      letter-spacing: .05em;
+    }
+
+    /* ── Answer input ── */
+    .answer-input {
+      font-size: 2.2rem;
+      width: 6rem;
+      text-align: center;
+      border: 3px solid #a29bfe;
+      border-radius: 1rem;
+      padding: .25rem .5rem;
+      outline: none;
+      transition: border-color .2s;
+      color: #2d3436;
+      margin-bottom: 1.2rem;
+    }
+    .answer-input:focus { border-color: #6c5ce7; }
+
+    /* ── Feedback ── */
+    .feedback {
+      min-height: 2.2rem;
+      font-size: 1.4rem;
+      font-weight: 700;
+      border-radius: .75rem;
+      padding: .3rem .8rem;
+      margin-bottom: .8rem;
+      transition: opacity .2s;
+    }
+    .feedback.correct { color: #27ae60; background: #d5f5e3; }
+    .feedback.wrong   { color: #c0392b; background: #fdecea; }
+    .feedback.hidden  { opacity: 0; }
+
+    /* ── Results ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+    .stat-box {
+      background: #f8f9fa;
+      border-radius: 1.2rem;
+      padding: 1rem .5rem;
+    }
+    .stat-box .stat-value {
+      font-size: 2rem;
+      font-weight: 800;
+    }
+    .stat-box .stat-label {
+      font-size: .85rem;
+      color: #636e72;
+      margin-top: .2rem;
+    }
+    .stat-box.time   .stat-value { color: #6c5ce7; }
+    .stat-box.ok     .stat-value { color: #27ae60; }
+    .stat-box.wrong  .stat-value { color: #e17055; }
+
+    /* ── Settings form ── */
+    .settings { margin: 1.2rem 0 1.4rem; text-align: left; }
+    .settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .75rem;
+      margin-bottom: .85rem;
+    }
+    .settings-row label {
+      font-size: 1.05rem;
+      color: #2d3436;
+      font-weight: 600;
+      flex: 1;
+    }
+    .setting-input {
+      width: 5rem;
+      font-size: 1.2rem;
+      font-weight: 700;
+      text-align: center;
+      border: 3px solid #a29bfe;
+      border-radius: .8rem;
+      padding: .25rem .4rem;
+      outline: none;
+      color: #2d3436;
+      transition: border-color .2s;
+      -moz-appearance: textfield;
+    }
+    .setting-input::-webkit-inner-spin-button,
+    .setting-input::-webkit-outer-spin-button { opacity: 1; }
+    .setting-input:focus { border-color: #6c5ce7; }
+    .setting-input.invalid { border-color: #e17055; background: #fff5f5; }
+    .pairs-hint {
+      font-size: .9rem;
+      color: #636e72;
+      margin-bottom: .2rem;
+    }
+    .pairs-hint span { font-weight: 700; color: #6c5ce7; }
+
+    /* ── Emoji decoration ── */
+    .emoji { font-size: 3rem; display: block; margin-bottom: .5rem; }
+
+    /* ── Screen visibility ── */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* ── Bounce animation on correct answer ── */
+    @keyframes pop {
+      0%   { transform: scale(1); }
+      50%  { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+    .pop { animation: pop .25s ease; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════ START SCREEN ═══════════════════════ -->
+<div class="card">
+
+  <div id="screen-start" class="screen active">
+    <span class="emoji">🌟</span>
+    <h1>Tabliczka Mnożenia</h1>
+    <p>Wpisz wynik i naciśnij <strong>Enter</strong>.</p>
+
+    <div class="settings">
+      <div class="settings-row">
+        <label for="cfg-max-result">🎯 Maksymalny wynik</label>
+        <input class="setting-input" type="number" id="cfg-max-result"
+               min="10" max="100" value="100" />
+      </div>
+      <div class="settings-row">
+        <label for="cfg-total">🔢 Liczba zadań</label>
+        <input class="setting-input" type="number" id="cfg-total"
+               min="5" max="50" value="20" />
+      </div>
+      <p class="pairs-hint" id="pairs-hint">Dostępnych par: <span id="pairs-count">100</span></p>
+    </div>
+
+    <button class="btn btn-primary" id="btn-start">▶ Start!</button>
+  </div>
+
+  <!-- ═══════════════════════ GAME SCREEN ═══════════════════════ -->
+  <div id="screen-game" class="screen">
+    <p class="progress-label" id="progress-label">Zadanie 1 / 20</p>
+    <div class="progress-wrap">
+      <div class="progress-bar" id="progress-bar" style="width:0%"></div>
+    </div>
+
+    <div class="task" id="task-display">? × ? = </div>
+
+    <div>
+      <input
+        class="answer-input"
+        type="number"
+        id="answer-input"
+        min="1" max="100"
+        autocomplete="off"
+        inputmode="numeric"
+        placeholder="?"
+      />
+    </div>
+
+    <div class="feedback hidden" id="feedback"></div>
+
+    <button class="btn btn-check" id="btn-check">✔ Sprawdź</button>
+  </div>
+
+  <!-- ═══════════════════════ RESULTS SCREEN ═══════════════════════ -->
+  <div id="screen-results" class="screen">
+    <span class="emoji" id="results-emoji">🏆</span>
+    <h2>Koniec gry!</h2>
+
+    <div class="stats-grid">
+      <div class="stat-box time">
+        <div class="stat-value" id="stat-time">0s</div>
+        <div class="stat-label">⏱ Czas</div>
+      </div>
+      <div class="stat-box ok">
+        <div class="stat-value" id="stat-correct">0</div>
+        <div class="stat-label">✅ Poprawne</div>
+      </div>
+      <div class="stat-box wrong">
+        <div class="stat-value" id="stat-wrong">0</div>
+        <div class="stat-label">❌ Błędne</div>
+      </div>
+    </div>
+
+    <p id="results-message"></p>
+    <button class="btn btn-success" id="btn-restart">🔄 Zagraj ponownie</button>
+  </div>
+
+</div><!-- .card -->
+
+<script>
+  /* ══════════════════════════════════════════
+     Game class — state and logic
+  ══════════════════════════════════════════ */
+  class Game {
+    static FACTOR_MAX = 10; // czynniki zawsze 1–10
+
+    constructor() {
+      this.questions = [];
+      this.index = 0;
+      this.correct = 0;
+      this.wrong = 0;
+      this.total = 20;
+      this.maxResult = 100;
+      this.startTime = null;
+      this.endTime = null;
+    }
+
+    /** Returns all unique pairs (a,b) with a*b <= maxResult */
+    static availablePairs(maxResult) {
+      const pairs = [];
+      for (let a = 1; a <= Game.FACTOR_MAX; a++)
+        for (let b = 1; b <= Game.FACTOR_MAX; b++)
+          if (a * b <= maxResult) pairs.push([a, b]);
+      return pairs;
+    }
+
+    /** Generate `total` unique shuffled pairs from the filtered pool */
+    generateQuestions() {
+      const pool = Game.availablePairs(this.maxResult);
+      for (let i = pool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+      }
+      this.questions = pool.slice(0, this.total);
+    }
+
+    start(total, maxResult) {
+      this.maxResult = maxResult;
+      const available = Game.availablePairs(maxResult).length;
+      this.total = Math.min(total, available);
+      this.generateQuestions();
+      this.index = 0;
+      this.correct = 0;
+      this.wrong = 0;
+      this.startTime = Date.now();
+      this.endTime = null;
+    }
+
+    get current() { return this.questions[this.index]; }
+    get isFinished() { return this.index >= this.total; }
+    get progress() { return this.index / this.total; }
+
+    /** Submit an answer. Returns true if correct. */
+    submit(value) {
+      const [a, b] = this.current;
+      const isCorrect = value === a * b;
+      if (isCorrect) this.correct++; else this.wrong++;
+      this.index++;
+      if (this.isFinished) this.endTime = Date.now();
+      return isCorrect;
+    }
+
+    get elapsedSeconds() {
+      const ms = (this.endTime || Date.now()) - this.startTime;
+      return (ms / 1000).toFixed(1);
+    }
+  }
+
+  /* ══════════════════════════════════════════
+     UI helpers
+  ══════════════════════════════════════════ */
+  const $ = id => document.getElementById(id);
+
+  function showScreen(name) {
+    ['start', 'game', 'results'].forEach(s => {
+      $(`screen-${s}`).classList.toggle('active', s === name);
+    });
+  }
+
+  /* ══════════════════════════════════════════
+     Controller
+  ══════════════════════════════════════════ */
+  const game = new Game();
+  let waitingForNext = false; // true while showing feedback, before advancing
+
+  /* ── Settings helpers ── */
+  function getSettings() {
+    const maxResult = Math.min(100, Math.max(10, parseInt($('cfg-max-result').value, 10) || 100));
+    const total     = Math.min(50,  Math.max(5,  parseInt($('cfg-total').value,      10) || 20));
+    return { maxResult, total };
+  }
+
+  function updatePairsHint() {
+    const { maxResult, total } = getSettings();
+    const available = Game.availablePairs(maxResult).length;
+    $('pairs-count').textContent = available;
+    const totalInput = $('cfg-total');
+    if (total > available) {
+      totalInput.classList.add('invalid');
+      $('pairs-hint').title = `Zmniejszono liczbę zadań do ${available}`;
+    } else {
+      totalInput.classList.remove('invalid');
+      $('pairs-hint').title = '';
+    }
+  }
+
+  $('cfg-max-result').addEventListener('input', updatePairsHint);
+  $('cfg-total').addEventListener('input', updatePairsHint);
+  updatePairsHint(); // init on load
+
+  function renderQuestion() {
+    const [a, b] = game.current;
+    $('task-display').textContent = `${a} × ${b} = `;
+    $('answer-input').value = '';
+    $('answer-input').focus();
+    hideFeedback();
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const n = game.index + 1;
+    $('progress-label').textContent = `Zadanie ${n} / ${game.total}`;
+    $('progress-bar').style.width = `${game.progress * 100}%`;
+  }
+
+  function showFeedback(text, cls) {
+    const el = $('feedback');
+    el.textContent = text;
+    el.className = `feedback ${cls}`;
+  }
+
+  function hideFeedback() {
+    $('feedback').className = 'feedback hidden';
+    $('feedback').textContent = '';
+  }
+
+  function handleAnswer() {
+    if (waitingForNext) {
+      advanceOrFinish();
+      return;
+    }
+
+    const raw = $('answer-input').value.trim();
+    if (raw === '') return;
+    const value = parseInt(raw, 10);
+    if (isNaN(value)) return;
+
+    const [a, b] = game.current;
+    const isCorrect = game.submit(value);
+
+    if (isCorrect) {
+      showFeedback('✅ Brawo! To dobra odpowiedź!', 'correct');
+      $('task-display').classList.add('pop');
+      setTimeout(() => $('task-display').classList.remove('pop'), 300);
+    } else {
+      showFeedback(`❌ Błąd! ${a} × ${b} = ${a * b}`, 'wrong');
+    }
+
+    $('btn-check').textContent = game.isFinished ? '📊 Wyniki' : '➡ Dalej';
+    waitingForNext = true;
+  }
+
+  function advanceOrFinish() {
+    waitingForNext = false;
+    $('btn-check').textContent = '✔ Sprawdź';
+    if (game.isFinished) {
+      showResults();
+    } else {
+      renderQuestion();
+    }
+  }
+
+  function showResults() {
+    const secs = parseFloat(game.elapsedSeconds);
+    const timeStr = secs >= 60
+      ? `${Math.floor(secs / 60)}m ${(secs % 60).toFixed(1)}s`
+      : `${secs.toFixed(1)}s`;
+
+    $('stat-time').textContent = timeStr;
+    $('stat-correct').textContent = game.correct;
+    $('stat-wrong').textContent = game.wrong;
+
+    const pct = game.correct / game.total;
+    let emoji = '🌟', msg = '';
+    if (pct === 1)        { emoji = '🏆'; msg = 'Perfekcyjny wynik! Jesteś mistrzem!'; }
+    else if (pct >= 0.8)  { emoji = '😊'; msg = 'Świetny wynik! Tak trzymaj!'; }
+    else if (pct >= 0.5)  { emoji = '💪'; msg = 'Dobra robota! Ćwicz dalej!'; }
+    else                  { emoji = '📚'; msg = 'Nie poddawaj się! Spróbuj jeszcze raz!'; }
+
+    $('results-emoji').textContent = emoji;
+    $('results-message').textContent = msg;
+    showScreen('results');
+  }
+
+  /* ══════════════════════════════════════════
+     Event listeners
+  ══════════════════════════════════════════ */
+  $('btn-start').addEventListener('click', () => {
+    const { maxResult, total } = getSettings();
+    game.start(total, maxResult);
+    waitingForNext = false;
+    $('btn-check').textContent = '✔ Sprawdź';
+    showScreen('game');
+    renderQuestion();
+  });
+
+  $('btn-check').addEventListener('click', handleAnswer);
+
+  $('answer-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') handleAnswer();
+  });
+
+  $('btn-restart').addEventListener('click', () => {
+    showScreen('start');
+  });
+</script>
+</body>
+</html>
