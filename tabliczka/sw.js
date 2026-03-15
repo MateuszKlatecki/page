@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tabliczka-mnozenia-v1';
+const CACHE_NAME = 'tabliczka-math-v2';
 const APP_SHELL = [
   './',
   './index.html',

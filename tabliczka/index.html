@@ -6,11 +6,11 @@
   <meta name="theme-color" content="#6c5ce7" />
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="Tabliczka" />
+  <meta name="apple-mobile-web-app-title" content="Tabliczka Math" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.svg" />
-  <title>Tabliczka Mnożenia 🌟</title>
+  <title>Mnożenie i Dzielenie 🌟</title>
   <style>
     /* ── Reset & base ── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -168,6 +168,7 @@
       outline: none;
       color: #2d3436;
       transition: border-color .2s;
+      appearance: textfield;
       -moz-appearance: textfield;
     }
     .setting-input::-webkit-inner-spin-button,
@@ -204,12 +205,12 @@
 
   <div id="screen-start" class="screen active">
     <span class="emoji">🌟</span>
-    <h1>Tabliczka Mnożenia</h1>
-    <p>Wpisz wynik i naciśnij <strong>Enter</strong>.</p>
+    <h1>Mnożenie i Dzielenie</h1>
+    <p>Ćwicz oba działania. Wpisz wynik i naciśnij <strong>Enter</strong>.</p>
 
     <div class="settings">
       <div class="settings-row">
-        <label for="cfg-max-result">🎯 Maksymalny wynik</label>
+        <label for="cfg-max-result">🎯 Maksymalna liczba</label>
         <input class="setting-input" type="number" id="cfg-max-result"
                min="10" max="100" value="100" />
       </div>
@@ -218,7 +219,7 @@
         <input class="setting-input" type="number" id="cfg-total"
                min="5" max="50" value="20" />
       </div>
-      <p class="pairs-hint" id="pairs-hint">Dostępnych par: <span id="pairs-count">81</span></p>
+      <p class="pairs-hint" id="pairs-hint">Dostępnych zadań: <span id="pairs-count">162</span></p>
     </div>
 
     <button class="btn btn-primary" id="btn-start">▶ Start!</button>
@@ -231,7 +232,7 @@
       <div class="progress-bar" id="progress-bar" style="width:0%"></div>
     </div>
 
-    <div class="task" id="task-display">? × ? = </div>
+    <div class="task" id="task-display">? ? ? = </div>
 
     <div>
       <input
@@ -294,18 +295,27 @@
       this.endTime = null;
     }
 
-    /** Returns all unique pairs (a,b) with a,b >= 2 and a*b <= maxResult */
-    static availablePairs(maxResult) {
-      const pairs = [];
-      for (let a = 2; a <= Game.FACTOR_MAX; a++)
-        for (let b = 2; b <= Game.FACTOR_MAX; b++)
-          if (a * b <= maxResult) pairs.push([a, b]);
-      return pairs;
+    /**
+     * Returns all available multiplication and division questions.
+     * The limit applies to the largest number shown in the task.
+     */
+    static availableQuestions(maxResult) {
+      const questions = [];
+      for (let a = 2; a <= Game.FACTOR_MAX; a++) {
+        for (let b = 2; b <= Game.FACTOR_MAX; b++) {
+          const product = a * b;
+          if (product > maxResult) continue;
+
+          questions.push({ left: a, right: b, operator: '×', answer: product });
+          questions.push({ left: product, right: b, operator: '÷', answer: a });
+        }
+      }
+      return questions;
     }
 
-    /** Generate `total` unique shuffled pairs from the filtered pool */
+    /** Generate `total` unique shuffled questions from the filtered pool */
     generateQuestions() {
-      const pool = Game.availablePairs(this.maxResult);
+      const pool = Game.availableQuestions(this.maxResult);
       for (let i = pool.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [pool[i], pool[j]] = [pool[j], pool[i]];
@@ -315,7 +325,7 @@
 
     start(total, maxResult) {
       this.maxResult = maxResult;
-      const available = Game.availablePairs(maxResult).length;
+      const available = Game.availableQuestions(maxResult).length;
       this.total = Math.min(total, available);
       this.generateQuestions();
       this.index = 0;
@@ -331,8 +341,8 @@
 
     /** Submit an answer. Returns true if correct. */
     submit(value) {
-      const [a, b] = this.current;
-      const isCorrect = value === a * b;
+      const { answer } = this.current;
+      const isCorrect = value === answer;
       if (isCorrect) this.correct++; else this.wrong++;
       this.index++;
       if (this.isFinished) this.endTime = Date.now();
@@ -371,7 +381,7 @@
 
   function updatePairsHint() {
     const { maxResult, total } = getSettings();
-    const available = Game.availablePairs(maxResult).length;
+    const available = Game.availableQuestions(maxResult).length;
     $('pairs-count').textContent = available;
     const totalInput = $('cfg-total');
     if (total > available) {
@@ -388,8 +398,8 @@
   updatePairsHint(); // init on load
 
   function renderQuestion() {
-    const [a, b] = game.current;
-    $('task-display').textContent = `${a} × ${b} = `;
+    const { left, right, operator } = game.current;
+    $('task-display').textContent = `${left} ${operator} ${right} = `;
     $('answer-input').value = '';
     $('answer-input').focus();
     hideFeedback();
@@ -424,7 +434,7 @@
     const value = parseInt(raw, 10);
     if (isNaN(value)) return;
 
-    const [a, b] = game.current;
+    const { left, right, operator, answer } = game.current;
     const isCorrect = game.submit(value);
 
     if (isCorrect) {
@@ -432,7 +442,7 @@
       $('task-display').classList.add('pop');
       setTimeout(() => $('task-display').classList.remove('pop'), 300);
     } else {
-      showFeedback(`❌ Błąd! ${a} × ${b} = ${a * b}`, 'wrong');
+      showFeedback(`❌ Błąd! ${left} ${operator} ${right} = ${answer}`, 'wrong');
     }
 
     $('btn-check').textContent = game.isFinished ? '📊 Wyniki' : '➡ Dalej';

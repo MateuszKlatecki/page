@@ -1,7 +1,7 @@
 {
-  "name": "Tabliczka Mnożenia",
+  "name": "Mnożenie i Dzielenie",
   "short_name": "Tabliczka",
-  "description": "Ćwiczenie tabliczki mnożenia na telefonie i komputerze.",
+  "description": "Ćwiczenie mnożenia i dzielenia na telefonie i komputerze.",
   "lang": "pl",
   "start_url": "./index.html",
   "scope": "./",
