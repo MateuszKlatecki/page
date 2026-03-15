@@ -1,11 +1,15 @@
-const CACHE_NAME = 'tabliczka-math-v2';
+const CACHE_NAME = 'tabliczka-math-v3';
 const APP_SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
   './icons/icon.svg',
   './icons/icon-maskable.svg',
-  './icons/apple-touch-icon.svg'
+  './icons/apple-touch-icon.svg',
+  './icons/icon-192.png',
+  './icons/icon-512.png',
+  './icons/icon-maskable-192.png',
+  './icons/icon-maskable-512.png'
 ];
 
 self.addEventListener('install', event => {
