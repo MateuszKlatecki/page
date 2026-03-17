@@ -41,6 +41,12 @@ h2 {
   margin-bottom: 1.2rem;
 }
 
+h3 {
+  font-size: 1.15rem;
+  color: #2d3436;
+  margin-bottom: 0.85rem;
+}
+
 p {
   font-size: 1.1rem;
   color: #636e72;
@@ -189,6 +195,39 @@ p {
 
 .stat-box.wrong .stat-value {
   color: #e17055;
+}
+
+.results-review {
+  margin: 1.5rem 0;
+  text-align: left;
+}
+
+.results-review-list {
+  list-style: none;
+  display: grid;
+  gap: 0.75rem;
+  padding: 0;
+  margin: 0;
+}
+
+.results-review-item {
+  background: #fff7f3;
+  border: 1px solid #ffd7c9;
+  border-radius: 1rem;
+  padding: 0.85rem 1rem;
+}
+
+.results-review-task {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #2d3436;
+  margin-bottom: 0.25rem;
+}
+
+.results-review-detail {
+  font-size: 0.95rem;
+  color: #636e72;
+  margin-bottom: 0;
 }
 
 /* Settings form */
@@ -356,6 +395,10 @@ p {
     font-size: 1.35rem;
   }
 
+  h3 {
+    font-size: 1.05rem;
+  }
+
   p {
     font-size: 1rem;
   }
@@ -437,5 +480,21 @@ p {
 
   .stat-box {
     padding: 0.75rem 0.25rem;
+  }
+
+  .results-review {
+    margin: 1.2rem 0;
+  }
+
+  .results-review-item {
+    padding: 0.75rem 0.85rem;
+  }
+
+  .results-review-task {
+    font-size: 1.05rem;
+  }
+
+  .results-review-detail {
+    font-size: 0.9rem;
   }
 }

@@ -6,6 +6,7 @@ class Game {
 
   constructor() {
     this.questions = [];
+    this.wrongAnswers = [];
     this.index = 0;
     this.correct = 0;
     this.wrong = 0;
@@ -52,6 +53,7 @@ class Game {
     this.total = Math.min(total, available);
     this.generateQuestions();
     this.index = 0;
+    this.wrongAnswers = [];
     this.correct = 0;
     this.wrong = 0;
     this.startTime = Date.now();
@@ -64,9 +66,21 @@ class Game {
 
   /** Submit an answer. Returns true if correct. */
   submit(value) {
-    const { answer } = this.current;
+    const { left, right, operator, answer } = this.current;
     const isCorrect = value === answer;
-    if (isCorrect) this.correct++; else this.wrong++;
+    if (isCorrect) {
+      this.correct++;
+    } else {
+      this.wrong++;
+      this.wrongAnswers.push({
+        left,
+        right,
+        operator,
+        userAnswer: value,
+        correctAnswer: answer,
+      });
+    }
+
     this.index++;
     if (this.isFinished) this.endTime = Date.now();
     return isCorrect;
@@ -180,6 +194,36 @@ function hideFeedback() {
   $('feedback').textContent = '';
 }
 
+function renderWrongAnswers() {
+  const review = $('results-review');
+  const list = $('results-review-list');
+
+  list.replaceChildren();
+
+  if (game.wrongAnswers.length === 0) {
+    review.hidden = true;
+    return;
+  }
+
+  game.wrongAnswers.forEach(({ left, right, operator, userAnswer, correctAnswer }) => {
+    const item = document.createElement('li');
+    item.className = 'results-review-item';
+
+    const task = document.createElement('p');
+    task.className = 'results-review-task';
+    task.textContent = `${left} ${operator} ${right}`;
+
+    const detail = document.createElement('p');
+    detail.className = 'results-review-detail';
+    detail.textContent = `Twoja odpowiedź: ${userAnswer} • Poprawny wynik: ${correctAnswer}`;
+
+    item.append(task, detail);
+    list.appendChild(item);
+  });
+
+  review.hidden = false;
+}
+
 function handleAnswer() {
   if (waitingForNext) {
     advanceOrFinish();
@@ -225,6 +269,7 @@ function showResults() {
   $('stat-time').textContent = timeStr;
   $('stat-correct').textContent = game.correct;
   $('stat-wrong').textContent = game.wrong;
+  renderWrongAnswers();
 
   const pct = game.correct / game.total;
   let emoji = '🌟', msg = '';
