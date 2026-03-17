@@ -204,6 +204,32 @@
   const game = new Game();
   let waitingForNext = false; // true while showing feedback, before advancing
 
+  /* ── Settings persistence ── */
+  const LS = {
+    maxResult: 'tabliczka_maxResult',
+    total:     'tabliczka_total',
+    multiply:  'tabliczka_multiply',
+    divide:    'tabliczka_divide',
+  };
+
+  function saveSettings() {
+    localStorage.setItem(LS.maxResult, $('cfg-max-result').value);
+    localStorage.setItem(LS.total,     $('cfg-total').value);
+    localStorage.setItem(LS.multiply,  $('cfg-multiply').checked);
+    localStorage.setItem(LS.divide,    $('cfg-divide').checked);
+  }
+
+  function loadSettings() {
+    const maxResult = localStorage.getItem(LS.maxResult);
+    const total     = localStorage.getItem(LS.total);
+    const multiply  = localStorage.getItem(LS.multiply);
+    const divide    = localStorage.getItem(LS.divide);
+    if (maxResult !== null) $('cfg-max-result').value   = maxResult;
+    if (total     !== null) $('cfg-total').value        = total;
+    if (multiply  !== null) $('cfg-multiply').checked   = multiply === 'true';
+    if (divide    !== null) $('cfg-divide').checked     = divide   === 'true';
+  }
+
   /* ── Settings helpers ── */
   function getSettings() {
     const maxResult = Math.min(100, Math.max(10, parseInt($('cfg-max-result').value, 10) || 100));
@@ -230,10 +256,11 @@
     }
   }
 
-  $('cfg-max-result').addEventListener('input', updatePairsHint);
-  $('cfg-total').addEventListener('input', updatePairsHint);
-  $('cfg-multiply').addEventListener('change', updatePairsHint);
-  $('cfg-divide').addEventListener('change', updatePairsHint);
+  $('cfg-max-result').addEventListener('input', () => { saveSettings(); updatePairsHint(); });
+  $('cfg-total').addEventListener('input', () => { saveSettings(); updatePairsHint(); });
+  $('cfg-multiply').addEventListener('change', () => { saveSettings(); updatePairsHint(); });
+  $('cfg-divide').addEventListener('change', () => { saveSettings(); updatePairsHint(); });
+  loadSettings();
   updatePairsHint(); // init on load
 
   function renderQuestion() {
