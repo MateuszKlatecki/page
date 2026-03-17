@@ -1,7 +1,8 @@
-const CACHE_NAME = 'tabliczka-math-v3';
+const CACHE_NAME = 'tabliczka-math-v4';
 const APP_SHELL = [
   './',
   './index.html',
+  './app.js',
   './manifest.webmanifest',
   './icons/icon.svg',
   './icons/icon-maskable.svg',
