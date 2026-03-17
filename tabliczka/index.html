@@ -34,7 +34,21 @@
         <input class="setting-input" type="number" id="cfg-total"
                min="5" max="50" value="20" />
       </div>
+      <div class="settings-row">
+        <label>📐 Typ zadań</label>
+        <div class="type-toggles">
+          <label class="type-toggle">
+            <input type="checkbox" id="cfg-multiply" checked />
+            <span>✖ Mnożenie</span>
+          </label>
+          <label class="type-toggle">
+            <input type="checkbox" id="cfg-divide" checked />
+            <span>÷ Dzielenie</span>
+          </label>
+        </div>
+      </div>
       <p class="pairs-hint" id="pairs-hint">Dostępnych zadań: <span id="pairs-count">162</span></p>
+      <p class="type-error hidden" id="type-error">⚠ Zaznacz co najmniej jeden typ zadań!</p>
     </div>
 
     <button class="btn btn-primary" id="btn-start">▶ Start!</button>
@@ -111,18 +125,20 @@
     }
 
     /**
-     * Returns all available multiplication and division questions.
-     * The limit applies to the largest number shown in the task.
+     * Returns all available questions filtered by maxResult and types.
+     * types: Set containing 'multiply' and/or 'divide'
      */
-    static availableQuestions(maxResult) {
+    static availableQuestions(maxResult, types) {
       const questions = [];
       for (let a = 2; a <= Game.FACTOR_MAX; a++) {
         for (let b = 2; b <= Game.FACTOR_MAX; b++) {
           const product = a * b;
           if (product > maxResult) continue;
 
-          questions.push({ left: a, right: b, operator: '×', answer: product });
-          questions.push({ left: product, right: b, operator: '÷', answer: a });
+          if (types.has('multiply'))
+            questions.push({ left: a, right: b, operator: '×', answer: product });
+          if (types.has('divide'))
+            questions.push({ left: product, right: b, operator: '÷', answer: a });
         }
       }
       return questions;
@@ -130,7 +146,7 @@
 
     /** Generate `total` unique shuffled questions from the filtered pool */
     generateQuestions() {
-      const pool = Game.availableQuestions(this.maxResult);
+      const pool = Game.availableQuestions(this.maxResult, this.types);
       for (let i = pool.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [pool[i], pool[j]] = [pool[j], pool[i]];
@@ -138,9 +154,10 @@
       this.questions = pool.slice(0, this.total);
     }
 
-    start(total, maxResult) {
+    start(total, maxResult, types) {
       this.maxResult = maxResult;
-      const available = Game.availableQuestions(maxResult).length;
+      this.types = types;
+      const available = Game.availableQuestions(maxResult, types).length;
       this.total = Math.min(total, available);
       this.generateQuestions();
       this.index = 0;
@@ -191,15 +208,20 @@
   function getSettings() {
     const maxResult = Math.min(100, Math.max(10, parseInt($('cfg-max-result').value, 10) || 100));
     const total     = Math.min(50,  Math.max(5,  parseInt($('cfg-total').value,      10) || 20));
-    return { maxResult, total };
+    const types = new Set();
+    if ($('cfg-multiply').checked) types.add('multiply');
+    if ($('cfg-divide').checked)   types.add('divide');
+    return { maxResult, total, types };
   }
 
   function updatePairsHint() {
-    const { maxResult, total } = getSettings();
-    const available = Game.availableQuestions(maxResult).length;
+    const { maxResult, total, types } = getSettings();
+    const noTypes = types.size === 0;
+    $('type-error').classList.toggle('hidden', !noTypes);
+    const available = noTypes ? 0 : Game.availableQuestions(maxResult, types).length;
     $('pairs-count').textContent = available;
     const totalInput = $('cfg-total');
-    if (total > available) {
+    if (!noTypes && total > available) {
       totalInput.classList.add('invalid');
       $('pairs-hint').title = `Zmniejszono liczbę zadań do ${available}`;
     } else {
@@ -210,6 +232,8 @@
 
   $('cfg-max-result').addEventListener('input', updatePairsHint);
   $('cfg-total').addEventListener('input', updatePairsHint);
+  $('cfg-multiply').addEventListener('change', updatePairsHint);
+  $('cfg-divide').addEventListener('change', updatePairsHint);
   updatePairsHint(); // init on load
 
   function renderQuestion() {
@@ -300,8 +324,9 @@
      Event listeners
   ══════════════════════════════════════════ */
   $('btn-start').addEventListener('click', () => {
-    const { maxResult, total } = getSettings();
-    game.start(total, maxResult);
+    const { maxResult, total, types } = getSettings();
+    if (types.size === 0) return;
+    game.start(total, maxResult, types);
     waitingForNext = false;
     $('btn-check').textContent = '✔ Sprawdź';
     showScreen('game');

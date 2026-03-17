@@ -252,6 +252,54 @@ p {
   color: #6c5ce7;
 }
 
+/* Type toggles (pill checkboxes) */
+.type-toggles {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.type-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+}
+
+.type-toggle input[type="checkbox"] {
+  display: none;
+}
+
+.type-toggle span {
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  border-radius: 2rem;
+  font-size: 1rem;
+  font-weight: 700;
+  border: 2px solid #a29bfe;
+  color: #a29bfe;
+  background: #fff;
+  transition: background 1.15s, color 0.15s, border-color 1.15s;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.type-toggle input[type="checkbox"]:checked + span {
+  background: linear-gradient(90deg, #6c5ce7, #a29bfe);
+  color: #fff;
+  border-color: #6c5ce7;
+}
+
+.type-error {
+  font-size: 0.9rem;
+  color: #e17055;
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+}
+
+.type-error.hidden {
+  display: none;
+}
+
 /* Emoji decoration */
 .emoji {
   font-size: 3rem;
@@ -285,4 +333,109 @@ p {
 
 .pop {
   animation: pop 0.25s ease;
+}
+
+/* ── Mobile (≤ 520px, covers Pixel 7 at 412px logical) ── */
+@media (max-width: 520px) {
+  body {
+    align-items: flex-start;
+    padding: 0.75rem;
+    overflow-y: auto;
+  }
+
+  .card {
+    padding: 1.5rem 1.25rem;
+    border-radius: 1.5rem;
+  }
+
+  h1 {
+    font-size: 1.75rem;
+  }
+
+  h2 {
+    font-size: 1.35rem;
+  }
+
+  p {
+    font-size: 1rem;
+  }
+
+  .emoji {
+    font-size: 2.4rem;
+  }
+
+  /* Task equation */
+  .task {
+    font-size: 2.6rem;
+    margin: 0.75rem 0;
+  }
+
+  /* Answer input — bigger touch target */
+  .answer-input {
+    font-size: 2rem;
+    width: 7.5rem;
+    padding: 0.4rem 0.6rem;
+  }
+
+  /* Feedback — fit long error messages */
+  .feedback {
+    font-size: 1.15rem;
+  }
+
+  /* Buttons — full width for easy tapping */
+  .btn {
+    width: 100%;
+    padding: 0.9rem 1rem;
+    font-size: 1.2rem;
+  }
+
+  /* Progress label */
+  .progress-label {
+    font-size: 0.9rem;
+  }
+
+  /* Settings */
+  .settings-row {
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .settings-row label {
+    font-size: 0.95rem;
+    flex: 1 1 100%;
+  }
+
+  .setting-input {
+    font-size: 1.1rem;
+    width: 4.5rem;
+  }
+
+  /* Type toggles */
+  .type-toggles {
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .type-toggle span {
+    font-size: 0.9rem;
+    padding: 0.3rem 0.65rem;
+    white-space: nowrap;
+  }
+
+  /* Stats grid */
+  .stats-grid {
+    gap: 0.6rem;
+  }
+
+  .stat-box .stat-value {
+    font-size: 1.6rem;
+  }
+
+  .stat-box .stat-label {
+    font-size: 0.75rem;
+  }
+
+  .stat-box {
+    padding: 0.75rem 0.25rem;
+  }
 }
